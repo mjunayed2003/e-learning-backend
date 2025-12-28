@@ -1,13 +1,28 @@
 import Video from './video.model.js'
+import { getEmbedUrl } from './video.helper.js'
 
-export const createVideo = async (data) => {
-  return await Video.create(data)
-}
+export const createVideo = async (req, res) => {
+  const { title, description, youtubeUrl, thumbnail, category } = req.body
 
-export const getAllVideos = async () => {
-  return await Video.find().sort({ createdAt: -1 })
-}
+  if (!title || !youtubeUrl || !category) {
+    return res.status(400).json({
+      message: 'Title, YouTube URL & Category required',
+    })
+  }
 
-export const getVideoById = async (id) => {
-  return await Video.findById(id)
+  const embedUrl = getEmbedUrl(youtubeUrl)
+
+  const video = await Video.create({
+    title,
+    description,
+    youtubeUrl,
+    embedUrl,
+    thumbnail,
+    category,
+  })
+
+  res.status(201).json({
+    message: 'Video created successfully',
+    video,
+  })
 }
